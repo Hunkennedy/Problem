@@ -124,7 +124,7 @@ using ( SqlConnection connection = new SqlConnection( connectionString ) )
     }
     sw.Stop();
     Console.WriteLine( $"Registros: {delitos.Count}");
-    Console.WriteLine( "Duration: " + sw.ElapsedMilliseconds + " milliseconds" );
+    Console.WriteLine( $"Duration: { sw.ElapsedMilliseconds / 1000.0} milliseconds" );
 
 
 
