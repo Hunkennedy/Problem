@@ -3,6 +3,7 @@
 using Microsoft.Data.SqlClient;
 using Problem;
 using System.Data;
+using System.Diagnostics;
 
 // The date is from 2021, because the csv format change ',' -> ';'
 int initialDate = 21;
@@ -39,7 +40,7 @@ while ( File.Exists( filePath ) )
         delito.Franja = values[ 5 ];
         delito.Type = values[ 6 ];
         delito.SubType = values[ 7 ];
-        delito.Weapon = values[ 8 ];
+        delito.Weapon = values[ 8 ] != "" ? values[ 8 ] : "No";
         delito.Town = values[ 9 ];
         delito.District = values[ 10 ];
         delito.Latitude = values[ 11 ];
@@ -49,6 +50,7 @@ while ( File.Exists( filePath ) )
         delitos.Add( delito );
     }
     initialDate++;
+    filePath = @$"C:\Users\cuent\source\repos\Problem\delitos_20{initialDate}.csv";
 }
 
 
@@ -65,10 +67,11 @@ using ( SqlConnection connection = new SqlConnection( connectionString ) )
     {
         if ( !( ( int ) cmd.ExecuteScalar() > 0 ) )
         {
-            string createTableSql = "CREATE TABLE delito(ID INT IDENTITY(1,1) PRIMARY KEY, " +
+            string createTableSql = "CREATE TABLE delito(" +
+                "                   ID INT IDENTITY(1,1) PRIMARY KEY, " +
                                     "serial NVARCHAR(64)," +
                                     "year NVARCHAR(4), " +
-                                    "month nvarchar(16), " +
+                                    "month nvarchar(64), " +
                                     "day NVARCHAR(32)," +
                                     "date NVARCHAR(32)," +
                                     "franja NVARCHAR(32)," +
@@ -87,49 +90,41 @@ using ( SqlConnection connection = new SqlConnection( connectionString ) )
         }
     }
 
-    string insertSql = "INSERT INTO delito (serial,year, month, day, date, franja, type, sub_type, weapon, town, district, latitude,longitude,quantity)" +
-                    "VALUES(@serial,@year, @month, @day, @date, @franja, @type, @sub_type, @weapon, @town, @district, @latitude,@longitude,@quantity)";
-    using ( SqlCommand cmd = new SqlCommand( insertSql, connection ) )
+    Stopwatch sw = Stopwatch.StartNew();
+    sw.Start();
+
+    DataTable dataTable = new DataTable();
+
+    dataTable.Columns.Add( "ID", typeof( int ) );
+    dataTable.Columns.Add( "serial", typeof( string ) );
+    dataTable.Columns.Add( "year", typeof( string ) );
+    dataTable.Columns.Add( "month", typeof( string ) );
+    dataTable.Columns.Add( "day", typeof( string ) );
+    dataTable.Columns.Add( "date", typeof( string ) );
+    dataTable.Columns.Add( "franja", typeof( string ) );
+    dataTable.Columns.Add( "type", typeof( string ) );
+    dataTable.Columns.Add( "sub_type", typeof( string ) );
+    dataTable.Columns.Add( "weapon", typeof( string ) );
+    dataTable.Columns.Add( "town", typeof( string ) );
+    dataTable.Columns.Add( "district", typeof( string ) );
+    dataTable.Columns.Add( "latitude", typeof( string ) );
+    dataTable.Columns.Add( "longitude", typeof( string ) );
+    dataTable.Columns.Add( "quantity", typeof( int ) );
+
+    foreach ( var item in delitos )
     {
-        cmd.Parameters.Add( "@serial", SqlDbType.NVarChar, 32 );
-        cmd.Parameters.Add( "@year", SqlDbType.NVarChar, 4 );
-        cmd.Parameters.Add( "@month", SqlDbType.NVarChar, 16 );
-        cmd.Parameters.Add( "@day", SqlDbType.NVarChar, 32 );
-        cmd.Parameters.Add( "@date", SqlDbType.NVarChar, 32 );
-        cmd.Parameters.Add( "@franja", SqlDbType.NVarChar, 32 );
-        cmd.Parameters.Add( "@type", SqlDbType.NVarChar, 64 );
-        cmd.Parameters.Add( "@sub_type", SqlDbType.NVarChar, 128 );
-        cmd.Parameters.Add( "@weapon", SqlDbType.NVarChar, 32 );
-        cmd.Parameters.Add( "@town", SqlDbType.NVarChar, 64 );
-        cmd.Parameters.Add( "@district", SqlDbType.NVarChar, 64 );
-        cmd.Parameters.Add( "@latitude", SqlDbType.NVarChar, 128 );
-        cmd.Parameters.Add( "@longitude", SqlDbType.NVarChar, 128 );
-        cmd.Parameters.Add( "@quantity", SqlDbType.Int );
-
-
-
-
-        foreach ( var item in delitos )
-        {
-            cmd.Parameters[ "@serial" ].Value = item.ID;
-            cmd.Parameters[ "@year" ].Value = item.Year;
-            cmd.Parameters[ "@month" ].Value = item.Month;
-            cmd.Parameters[ "@day" ].Value = item.Day;
-            cmd.Parameters[ "@date" ].Value = item.Date;
-            cmd.Parameters[ "@franja" ].Value = item.Franja;
-            cmd.Parameters[ "@type" ].Value = item.Type;
-            cmd.Parameters[ "@sub_type" ].Value = item.SubType;
-            cmd.Parameters[ "@weapon" ].Value = item.Weapon;
-            cmd.Parameters[ "@town" ].Value = item.Town;
-            cmd.Parameters[ "@district" ].Value = item.District;
-            cmd.Parameters[ "@latitude" ].Value = item.Latitude;
-            cmd.Parameters[ "@longitude" ].Value = item.Longitude;
-            cmd.Parameters[ "@quantity" ].Value = item.Quantity;
-
-            int rowsAffected = cmd.ExecuteNonQuery();
-            Console.WriteLine( $"Rows affected: {rowsAffected}" );
-        }
+        dataTable.Rows.Add(0, item.ID, item.Year, item.Month, item.Day, item.Date, item.Franja, item.Type, item.SubType, item.Weapon, item.Town
+            , item.District, item.Latitude, item.Longitude, item.Quantity );
     }
+
+    using ( SqlBulkCopy bulkCopy = new SqlBulkCopy( connection ) )
+    {
+        bulkCopy.DestinationTableName = "delito";
+        bulkCopy.WriteToServer( dataTable );
+    }
+    sw.Stop();
+    Console.WriteLine( $"Registros: {delitos.Count}");
+    Console.WriteLine( "Duration: " + sw.ElapsedMilliseconds + " milliseconds" );
 
 
 
