@@ -6,9 +6,10 @@ Seed your database from a csv file
 
 Structure
 
-| ID| serial | year | month | day | date | franja | type | sub_type | weapon | town | district | latitude | longitude | quantity |
-|--------------------------------------------------------------------------------------------------------------------------------|
-| int| nvarchar | nvarchar | nvarchar | nvarchar | nvarchar | nvarchar | nvarchar | nvarchar | nvarchar | nvarchar | nvarchar | nvarchar | nvarchar |int |
+|ID|serial|year|month|day|date|franja|type|sub_type|weapon|town|district|latitude|longitude|quantity|
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+|int|nvarchar|nvarchar|nvarchar|nvarchar|nvarchar|nvarchar|nvarchar|nvarchar|nvarchar|nvarchar|nvarchar|nvarchar|nvarchar|int|
+
 
 CSV data extracted from <a href="https://data.buenosaires.gob.ar/dataset/delitos/resource/3a691e3e-6df9-412b-a300-6c611733c2c2">here</a>
 <p> since 2021 the csv is separated by ';' </p>

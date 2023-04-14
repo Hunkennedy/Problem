@@ -113,7 +113,7 @@ using ( SqlConnection connection = new SqlConnection( connectionString ) )
 
     foreach ( var item in delitos )
     {
-        dataTable.Rows.Add(0, item.ID, item.Year, item.Month, item.Day, item.Date, item.Franja, item.Type, item.SubType, item.Weapon, item.Town
+        dataTable.Rows.Add( 0, item.ID, item.Year, item.Month, item.Day, item.Date, item.Franja, item.Type, item.SubType, item.Weapon, item.Town
             , item.District, item.Latitude, item.Longitude, item.Quantity );
     }
 
@@ -123,8 +123,8 @@ using ( SqlConnection connection = new SqlConnection( connectionString ) )
         bulkCopy.WriteToServer( dataTable );
     }
     sw.Stop();
-    Console.WriteLine( $"Registros: {delitos.Count}");
-    Console.WriteLine( $"Duration: { sw.ElapsedMilliseconds / 1000.0} milliseconds" );
+    Console.WriteLine( $"Records: {delitos.Count}" );
+    Console.WriteLine( $"Duration: {sw.ElapsedMilliseconds / 1000.0} milliseconds" );
 
 
 
