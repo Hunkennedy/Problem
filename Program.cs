@@ -4,45 +4,55 @@ using Microsoft.Data.SqlClient;
 using Problem;
 using System.Data;
 
-string filePath = @"C:\Users\cuent\source\repos\Problem\delitos_2021.csv";
+// The date is from 2021, because the csv format change ',' -> ';'
+int initialDate = 21;
+string filePath = @$"C:\Users\cuent\source\repos\Problem\delitos_20{initialDate}.csv";
 
-if ( !File.Exists( filePath ) )
-{
-    Console.WriteLine( "File doesn't exist" );
-    return;
-}
-
-StreamReader reader = new StreamReader( File.OpenRead( filePath ) );
-if ( reader.BaseStream.Length == 0 ) return;
 List<Delito> delitos = new List<Delito>();
 
-while ( !reader.EndOfStream )
+while ( File.Exists( filePath ) )
 {
-    Delito delito = new Delito();
-    var line = reader.ReadLine();
-    var values = line.Split( ';' );
 
-    if ( values[ 0 ] == "id-mapa" ) continue;
 
-    delito.ID = values[ 0 ];
-    delito.Year = values[ 1 ];
-    delito.Month = values[ 2 ];
-    delito.Day = values[ 3 ];
-    delito.Date = values[ 4 ];
-    delito.Franja = values[ 5 ];
-    delito.Type = values[ 6 ];
-    delito.SubType = values[ 7 ];
-    delito.Weapon = values[ 8 ];
-    delito.Town = values[ 9 ];
-    delito.District = values[ 10 ];
-    delito.Latitude = values[ 11 ];
-    delito.Longitude = values[ 12 ];
-    delito.Quantity = values[ 13 ] != "" ? int.Parse( values[ 13 ] ) : 0;
+    if ( !File.Exists( filePath ) )
+    {
+        Console.WriteLine( "File doesn't exist" );
+        return;
+    }
 
-    delitos.Add( delito );
+    StreamReader reader = new StreamReader( File.OpenRead( filePath ) );
+    if ( reader.BaseStream.Length == 0 ) return;
+
+    while ( !reader.EndOfStream )
+    {
+        Delito delito = new Delito();
+        var line = reader.ReadLine();
+        var values = line.Split( ';' );
+
+        if ( values[ 0 ] == "id-mapa" ) continue;
+
+        delito.ID = values[ 0 ];
+        delito.Year = values[ 1 ];
+        delito.Month = values[ 2 ];
+        delito.Day = values[ 3 ];
+        delito.Date = values[ 4 ];
+        delito.Franja = values[ 5 ];
+        delito.Type = values[ 6 ];
+        delito.SubType = values[ 7 ];
+        delito.Weapon = values[ 8 ];
+        delito.Town = values[ 9 ];
+        delito.District = values[ 10 ];
+        delito.Latitude = values[ 11 ];
+        delito.Longitude = values[ 12 ];
+        delito.Quantity = values[ 13 ] != "" ? int.Parse( values[ 13 ] ) : 0;
+
+        delitos.Add( delito );
+    }
+    initialDate++;
 }
 
 
+// the password setted in docker-compose file
 string connectionString = "Server=localhost,1433;Database=Delitos;User ID=sa;Password=YourStrong!Passw0rd;Encrypt=False;";
 
 using ( SqlConnection connection = new SqlConnection( connectionString ) )
